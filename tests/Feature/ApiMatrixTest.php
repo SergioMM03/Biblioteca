@@ -191,7 +191,25 @@ class ApiMatrixTest extends TestCase
             ->assertJsonPath('message', 'This action is unauthorized.');
     }
 
-    // LOANS — préstamo y devolución
+    // LOANS — historial, préstamo y devolución
+
+    public function test_authenticated_users_can_view_loans_history(): void
+    {
+        $student = $this->createUserWithRole('estudiante');
+        $book = Book::factory()->create();
+        $loan = Loan::factory()->create([
+            'book_id' => $book->id,
+        ]);
+
+        Sanctum::actingAs($student);
+
+        $this->getJson('/api/v1/loans')
+            ->assertOk()
+            ->assertJsonFragment([
+                'id' => $loan->id,
+                'requester_name' => $loan->requester_name,
+            ]);
+    }
 
     public function test_teacher_can_borrow_and_return_book(): void
     {
