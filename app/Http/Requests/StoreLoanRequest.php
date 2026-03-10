@@ -24,7 +24,7 @@ class StoreLoanRequest extends FormRequest
     {
         return [
             'requester_name' => ['string', 'required', 'max:255'],
-            'book_id' => ['integer', 'required', 'exists:books,id'],
+            'book_id' => ['integer', 'required'],
         ];
     }
 }

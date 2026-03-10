@@ -31,6 +31,10 @@ class LoanController extends Controller
 
         $book = Book::find($request->input('book_id'));
 
+        if (! $book) {
+            return response()->json(['message' => 'Book not found'], 404);
+        }
+
         if (! $book->is_available || $book->available_copies === 0) {
             return response()->json(['message' => 'Book is not available'], 422);
         }

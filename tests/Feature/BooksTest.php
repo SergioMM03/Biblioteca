@@ -118,7 +118,7 @@ class BooksTest extends TestCase
         $this->putJson('/api/v1/books/999', [
             'title' => 'Libro inexistente'
         ])
-        ->assertNotFound();
+        ->assertNotFound(422);
     }
 
     public function test_librarian_can_delete_book(): void

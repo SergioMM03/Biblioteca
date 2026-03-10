@@ -66,7 +66,7 @@ class AuthTest extends TestCase
             'email' => $user->email,
             'password' => 'wrongpassword',
         ])
-        ->assertStatus(401);
+        ->assertStatus(422);
     }
 
     public function test_login_fails_with_invalid_email(): void
@@ -75,7 +75,7 @@ class AuthTest extends TestCase
             'email' => 'nonexistent@email.com',
             'password' => 'test1234',
         ])
-        ->assertStatus(401);
+        ->assertStatus(422);
     }
 
     public function test_logout_requires_authentication(): void

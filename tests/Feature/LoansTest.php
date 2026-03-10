@@ -97,7 +97,7 @@ class LoansTest extends TestCase
             'requester_name' => 'Alumno',
             'book_id' => 999,
         ])
-        ->assertNotFound();
+        ->assertNotFound(422);
     }
 
     public function test_return_fails_when_loan_does_not_exist(): void
@@ -106,7 +106,7 @@ class LoansTest extends TestCase
         Sanctum::actingAs($student);
 
         $this->postJson('/api/v1/loans/999/return')
-            ->assertNotFound();
+            ->assertNotFound(422);
     }
 
     public function test_loan_validation_fails_with_missing_fields(): void
