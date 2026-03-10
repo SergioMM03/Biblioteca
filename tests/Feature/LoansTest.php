@@ -89,3 +89,39 @@ class LoansTest extends TestCase
         return $user;
     }
 }
+
+public function test_loans_history_requires_authentication(): void
+{
+    $this->getJson('/api/v1/loans')
+        ->assertUnauthorized();
+}
+
+public function test_loan_fails_when_book_does_not_exist(): void
+{
+    $student = $this->createUserWithRole('estudiante');
+    Sanctum::actingAs($student);
+
+    $this->postJson('/api/v1/loans', [
+        'requester_name' => 'Alumno',
+        'book_id' => 999,
+    ])
+    ->assertNotFound();
+}
+
+public function test_return_fails_when_loan_does_not_exist(): void
+{
+    $student = $this->createUserWithRole('estudiante');
+    Sanctum::actingAs($student);
+
+    $this->postJson('/api/v1/loans/999/return')
+        ->assertNotFound();
+}
+
+public function test_loan_validation_fails_with_missing_fields(): void
+{
+    $student = $this->createUserWithRole('estudiante');
+    Sanctum::actingAs($student);
+
+    $this->postJson('/api/v1/loans', [])
+        ->assertStatus(422);
+}
