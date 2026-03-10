@@ -15,7 +15,9 @@ class LoanController extends Controller
      */
     public function index()
     {
-        $loans = Loan::with('book')->paginate();
+        $this->authorize('viewAny', Loan::class);
+
+        $loans = Loan::with('book')->latest()->paginate();
 
         return response()->json(LoanResource::collection($loans));
     }
@@ -25,6 +27,8 @@ class LoanController extends Controller
      */
     public function store(StoreLoanRequest $request)
     {
+        $this->authorize('create', Loan::class);
+
         $book = Book::find($request->input('book_id'));
 
         if (! $book->is_available || $book->available_copies === 0) {
@@ -41,8 +45,7 @@ class LoanController extends Controller
             'is_available' => $book->available_copies - 1 > 0,
         ]);
 
-        return response()->json($loan, 201);
-
+        return response()->json(LoanResource::make($loan->load('book')), 201);
     }
 
     /**

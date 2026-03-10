@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Loan;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreLoanRequest extends FormRequest
@@ -11,7 +12,7 @@ class StoreLoanRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('create', Loan::class) ?? false;
     }
 
     /**

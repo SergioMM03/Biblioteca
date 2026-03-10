@@ -1,0 +1,261 @@
+{
+  "info": {
+    "name": "Biblioteca API",
+    "_postman_id": "8b0d1b0a-5f8e-4d9e-9b77-5a02c8f9f4d1",
+    "description": "Coleccion para probar autenticacion, libros y prestamos con usuarios creados via tinker.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login Bibliotecario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{bibliotecario_email}}\",\n  \"password\": \"{{default_password}}\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "if (json.access_token) { pm.collectionVariables.set('token', json.access_token); pm.collectionVariables.set('active_role', 'bibliotecario'); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Docente",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{docente_email}}\",\n  \"password\": \"{{default_password}}\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "if (json.access_token) { pm.collectionVariables.set('token', json.access_token); pm.collectionVariables.set('active_role', 'docente'); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Estudiante",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{estudiante_email}}\",\n  \"password\": \"{{default_password}}\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "if (json.access_token) { pm.collectionVariables.set('token', json.access_token); pm.collectionVariables.set('active_role', 'estudiante'); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/v1/profile"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/v1/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Books",
+      "item": [
+        {
+          "name": "Listar libros",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/v1/books"
+          }
+        },
+        {
+          "name": "Detalle libro",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/v1/books/{{book_id}}"
+          }
+        },
+        {
+          "name": "Crear libro (solo bibliotecario)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Clean Architecture\",\n  \"description\": \"Arquitectura de software\",\n  \"ISBN\": \"{{new_isbn}}\",\n  \"total_copies\": 5,\n  \"available_copies\": 5\n}"
+            },
+            "url": "{{base_url}}/api/v1/books"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var json = pm.response.json();",
+                  "  if (json.id) pm.collectionVariables.set('book_id', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar libro (solo bibliotecario)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Clean Architecture (2da edicion)\"\n}"
+            },
+            "url": "{{base_url}}/api/v1/books/{{book_id}}"
+          }
+        },
+        {
+          "name": "Eliminar libro (solo bibliotecario)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/v1/books/{{book_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Loans",
+      "item": [
+        {
+          "name": "Historial",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/v1/loans"
+          }
+        },
+        {
+          "name": "Prestar (solo docente/estudiante)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requester_name\": \"Usuario Prueba\",\n  \"book_id\": {{book_id}}\n}"
+            },
+            "url": "{{base_url}}/api/v1/loans"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var json = pm.response.json();",
+                  "  if (json.id) pm.collectionVariables.set('loan_id', json.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Devolver (solo docente/estudiante)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/api/v1/loans/{{loan_id}}/return"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000" },
+    { "key": "bibliotecario_email", "value": "biblio@test.com" },
+    { "key": "docente_email", "value": "doc@test.com" },
+    { "key": "estudiante_email", "value": "estu@test.com" },
+    { "key": "default_password", "value": "123456" },
+    { "key": "active_role", "value": "" },
+    { "key": "token", "value": "" },
+    { "key": "book_id", "value": "1" },
+    { "key": "loan_id", "value": "1" },
+    { "key": "new_isbn", "value": "9780134494167" }
+  ]
+}

@@ -2,30 +2,26 @@
 
 namespace App\Policies;
 
-use App\Models\Book;
+use App\Models\Libro;
 use App\Models\User;
+use Illuminate\Auth\Access\Response;
 
-class BookPolicy
+class LibroPolicy
 {
-    private function isLibraryRole(User $user): bool
-    {
-        return $user->hasAnyRole(['bibliotecario', 'docente', 'estudiante']);
-    }
-
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $this->isLibraryRole($user);
+        return false;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Book $book): bool
+    public function view(User $user, Libro $libro): bool
     {
-        return $this->isLibraryRole($user);
+        return false;
     }
 
     /**
@@ -33,13 +29,13 @@ class BookPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('bibliotecario');
+        return false;
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Book $book): bool
+    public function update(User $user, Libro $libro): bool
     {
         return $user->hasRole('bibliotecario');
     }
@@ -47,15 +43,15 @@ class BookPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Book $book): bool
+    public function delete(User $user, Libro $libro): bool
     {
-        return $user->hasRole('bibliotecario');
+        return false;
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Book $book): bool
+    public function restore(User $user, Libro $libro): bool
     {
         return false;
     }
@@ -63,7 +59,7 @@ class BookPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Book $book): bool
+    public function forceDelete(User $user, Libro $libro): bool
     {
         return false;
     }
