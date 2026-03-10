@@ -55,3 +55,31 @@ class AuthTest extends TestCase
             ->assertUnauthorized();
     }
 }
+
+public function test_login_fails_with_wrong_password(): void
+{
+    $user = User::factory()->create([
+        'password' => bcrypt('correct123'),
+    ]);
+
+    $this->postJson('/api/v1/login', [
+        'email' => $user->email,
+        'password' => 'wrongpassword',
+    ])
+    ->assertStatus(401);
+}
+
+public function test_login_fails_with_invalid_email(): void
+{
+    $this->postJson('/api/v1/login', [
+        'email' => 'nonexistent@email.com',
+        'password' => 'test1234',
+    ])
+    ->assertStatus(401);
+}
+
+public function test_logout_requires_authentication(): void
+{
+    $this->postJson('/api/v1/logout')
+        ->assertUnauthorized();
+}
