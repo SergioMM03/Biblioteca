@@ -48,7 +48,7 @@ class BooksTest extends TestCase
             ->assertUnauthorized();
     }
 
-    public function test_book_detail_returns_404_if_not_found(): void
+    public function test_book_detail_returns_422_if_not_found(): void
     {
         $student = $this->createUserWithRole('estudiante');
         Sanctum::actingAs($student);
@@ -110,7 +110,7 @@ class BooksTest extends TestCase
         ->assertOk();
     }
 
-    public function test_update_book_returns_404_if_not_found(): void
+    public function test_update_book_returns_422_if_not_found(): void
     {
         $librarian = $this->createUserWithRole('bibliotecario');
         Sanctum::actingAs($librarian);
@@ -132,7 +132,7 @@ class BooksTest extends TestCase
             ->assertNoContent();
     }
 
-    public function test_delete_book_returns_404_if_not_found(): void
+    public function test_delete_book_returns_422_if_not_found(): void
     {
         $librarian = $this->createUserWithRole('bibliotecario');
         Sanctum::actingAs($librarian);
