@@ -156,3 +156,51 @@ class BooksTest extends TestCase
         ];
     }
 }
+
+public function test_books_list_requires_authentication(): void
+{
+    $this->getJson('/api/v1/books')
+        ->assertUnauthorized();
+}
+
+public function test_book_detail_returns_404_if_not_found(): void
+{
+    $student = $this->createUserWithRole('estudiante');
+    Sanctum::actingAs($student);
+
+    $this->getJson('/api/v1/books/999')
+        ->assertNotFound();
+}
+
+public function test_create_book_fails_with_invalid_data(): void
+{
+    $librarian = $this->createUserWithRole('bibliotecario');
+    Sanctum::actingAs($librarian);
+
+    $this->postJson('/api/v1/books', [
+        'title' => '',
+        'ISBN' => '',
+        'total_copies' => null,
+    ])
+    ->assertStatus(422);
+}
+
+public function test_update_book_returns_404_if_not_found(): void
+{
+    $librarian = $this->createUserWithRole('bibliotecario');
+    Sanctum::actingAs($librarian);
+
+    $this->putJson('/api/v1/books/999', [
+        'title' => 'Libro inexistente'
+    ])
+    ->assertNotFound();
+}
+
+public function test_delete_book_returns_404_if_not_found(): void
+{
+    $librarian = $this->createUserWithRole('bibliotecario');
+    Sanctum::actingAs($librarian);
+
+    $this->deleteJson('/api/v1/books/999')
+        ->assertNotFound();
+}
