@@ -1,0 +1,91 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Book;
+use App\Models\Loan;
+use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
+use Tests\TestCase;
+
+class LoansTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed(RolePermissionSeeder::class);
+    }
+
+    public function test_authenticated_users_can_view_loans_history(): void
+    {
+        $student = $this->createUserWithRole('estudiante');
+        $book = Book::factory()->create();
+        $loan = Loan::factory()->create([
+            'book_id' => $book->id,
+        ]);
+
+        Sanctum::actingAs($student);
+
+        $this->getJson('/api/v1/loans')
+            ->assertOk()
+            ->assertJsonFragment([
+                'id' => $loan->id,
+                'requester_name' => $loan->requester_name,
+            ]);
+    }
+
+    public function test_teacher_can_borrow_and_return_book(): void
+    {
+        $book = Book::factory()->create([
+            'total_copies' => 3,
+            'available_copies' => 3,
+            'is_available' => true,
+        ]);
+
+        $teacher = $this->createUserWithRole('docente');
+        Sanctum::actingAs($teacher);
+
+        $loan = $this->postJson('/api/v1/loans', [
+            'requester_name' => 'Profesor Uno',
+            'book_id' => $book->id,
+        ])->assertCreated();
+
+        $loanId = $loan->json('id');
+
+        $this->postJson('/api/v1/loans/' . $loanId . '/return')
+            ->assertOk()
+            ->assertJsonPath('is_active', false);
+    }
+
+    public function test_student_can_borrow_and_return_book(): void
+    {
+        $book = Book::factory()->create([
+            'total_copies' => 2,
+            'available_copies' => 2,
+            'is_available' => true,
+        ]);
+
+        $student = $this->createUserWithRole('estudiante');
+        Sanctum::actingAs($student);
+
+        $loan = $this->postJson('/api/v1/loans', [
+            'requester_name' => 'Alumno Uno',
+            'book_id' => $book->id,
+        ])->assertCreated();
+
+        $this->postJson('/api/v1/loans/' . $loan->json('id') . '/return')
+            ->assertOk()
+            ->assertJsonPath('is_active', false);
+    }
+
+    private function createUserWithRole(string $role): User
+    {
+        $user = User::factory()->create();
+        $user->assignRole($role);
+        return $user;
+    }
+}
